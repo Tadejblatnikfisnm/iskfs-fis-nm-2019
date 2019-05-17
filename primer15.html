@@ -19,7 +19,6 @@ Kontrolni sistem P - kontroler
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
 <script type="text/javascript">
-
 var x1 = new Array(); // polje za spremenljivko x1
 var y1 = new Array(); // polje za spremenljivko y1
 var x2 = new Array(); // polje za spremenljivko x2
@@ -28,53 +27,40 @@ var canvas;
 var ctx;
 var potVrednost1; // vrednost prvega potenciometra
 var potVrednost2; // vrednost drugega potenciometra
-
 var divZaIzpis = document.getElementById("divZaIzpis"); // var za div el.
 var štVrsticPredPomikom = 10;
 var števecIzpisanihVrstic = 0;
-
 var socket = io.connect("192.168.1.133:8080"); // povezava na strež.
-
 function load() {
     canvas = document.getElementById("cv");
     ctx = canvas.getContext("2d");
-
     // izrišemo prvo časovno vrsto za želene vrednosti
     ctx.lineWidth = "1";
     ctx.strokeStyle = "#ff0000";
-
     for (var i = 0; i<200; i++) {
         x1[i] = i; // x1 gre od 0, 1, ... 199
         y1[i] = 0; // za y podamo vrednost 0
     }
-
     ctx.beginPath(); // za začetek izrisa črte
-
     for (var i=0; i<200; i++) {
         ctx.lineTo(x1[i],y1[i]);
     }
-
     ctx.stroke();
     
     // izrišemo drugo časovno vrsto za dejanske vrednosti
     ctx.lineWidth = "1";
     ctx.strokeStyle = "#00ff00";
-
     for (var i = 0; i<200; i++) {
         x2[i] = i; // x2 gre od 0, 1, ... 199
         y2[i] = 0; // za y podamo vrednost 0
     }
-
     ctx.beginPath(); // za začetek izrisa črte
-
     for (var i=0; i<200; i++) {
         ctx.lineTo(x2[i],y2[i]);
     }
-
     ctx.stroke();    
     
 }
-
 socket.on("klientBeriVrednosti", function(value){
     
     potVrednost1 = value.želenaVrednost; // žel. vr. iz strežnika
@@ -130,15 +116,12 @@ socket.on("klientBeriVrednosti", function(value){
     log(value.želenaVrednost + "|" + value.dejanskaVrednost + "|" + (value.želenaVrednost-value.dejanskaVrednost) + "|" + (value.pwm).toFixed(0));
     
 });
-
 function startKontrolniAlgoritem() {
     socket.emit("startKontrolniAlgoritem");
 }
-
 function stopKontrolniAlgoritem() {
     socket.emit("stopKontrolniAlgoritem");
 }
-
 function log(sporočilo) {
     var node=document.createElement("tr"); // we create the variable node as the a table row (tr)
     var textnode=document.createTextNode(števecIzpisanihVrstic + " | " + sporočilo); // we create element with the text adding the counter
@@ -149,7 +132,6 @@ function log(sporočilo) {
     }
     števecIzpisanihVrstic++; // increasing the number of printouts
 }
-
 </script>
 
 

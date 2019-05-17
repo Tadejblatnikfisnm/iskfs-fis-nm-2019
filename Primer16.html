@@ -6,14 +6,14 @@
 
 <head>
 
-    <title>Primer z grafom</title>
+    <title>Kontrolni sistem</title>
 
 </head>
 
 
 <body onload="load()">
 
-Kontrolni sistem P - kontroler
+Kontrolni sistem P / PID
 
 <br>
 
@@ -21,11 +21,29 @@ Kontrolni sistem P - kontroler
 
 <p></p>
 
+faktor: <input id="faktor" value="0.5" size="5" />
 
-<button id="startKontrolniAlgoritem" onClick="startKontrolniAlgoritem();">Start Ctrl Alg</button>
+<button id="startKontrolniAlgoritem1" onClick="startKontrolniAlgoritem1();">Start Ctrl Alg</button>
 
 <button id="stopKontrolniAlgoritem" onClick="stopKontrolniAlgoritem();">Stop Ctrl Alg</button>
 
+<p></p>
+
+Kp: <input id="Kp1" value="0.5" size = "5" />
+
+Ki: <input id="Ki1" value="0.0055" size = "5" />
+
+Kd: <input id="Kd1" value="0.25" size = "5" />
+
+<button id="startKontrolniAlgoritem2" onClick="startKontrolniAlgoritem2();">Start Ctrl Alg2</button>
+
+<button id="stopKontrolniAlgoritem" onClick="stopKontrolniAlgoritem();">Stop Kontrolni Alg</button>
+
+<p></p>
+
+<div id="divZaStatičniIzpis">Status: ×</div>
+
+<p></p>
 
 <div id="divZaIzpis"></div>
 
@@ -131,21 +149,33 @@ socket.on("klientBeriVrednosti", function(value){
     log(value.želenaVrednost + "|" + value.dejanskaVrednost + "|" + (value.želenaVrednost-value.dejanskaVrednost) + "|" + (value.pwm).toFixed(0));
     
 });
-function startKontrolniAlgoritem() {
-    socket.emit("startKontrolniAlgoritem");
+socket.on("statičnoSporočiloKlientu", function(sporočilo){
+   document.getElementById("divZaStatičniIzpis").innerHTML = "Status: " + sporočilo;
+});
+function startKontrolniAlgoritem1() {
+    stopKontrolniAlgoritem(); // za vsak primer algoritem najprej zaustavimo
+    faktor = document.getElementById("faktor").value; // beremo vrednost faktorja iz vnosnega polja
+    socket.emit("startKontrolniAlgoritem", {"štKontrolnegaAlg": 1, "faktor": faktor}); /// beremo vrednost iz vnosnega polja
+}
+function startKontrolniAlgoritem2() {
+    stopKontrolniAlgoritem(); // za vsak primer algoritem najprej zaustavimo
+    Kp1 = document.getElementById("Kp1").value; // beremo vrednost iz vnosnega polja
+    Ki1 = document.getElementById("Ki1").value; // beremo vrednost iz vnosnega polja
+    Kd1 = document.getElementById("Kd1").value; // beremo vrednost iz vnosnega polja
+    socket.emit("startKontrolniAlgoritem", {"štKontrolnegaAlg": 2, "Kp1": Kp1, "Ki1": Ki1, "Kd1": Kd1}); // pošljemo json z vrednostmi na strežnik
 }
 function stopKontrolniAlgoritem() {
     socket.emit("stopKontrolniAlgoritem");
 }
 function log(sporočilo) {
-    var node=document.createElement("tr"); // we create the variable node as the a table row (tr)
-    var textnode=document.createTextNode(števecIzpisanihVrstic + " | " + sporočilo); // we create element with the text adding the counter
-    node.appendChild(textnode); // adding text to "node", i.e. table row
-    divZaIzpis.insertBefore(node, divZaIzpis.childNodes[0]); // inserting into variable node
-    if (števecIzpisanihVrstic > štVrsticPredPomikom-1) { // if the lines are more than limit -> start with scroll
-        divZaIzpis.removeChild(divZaIzpis.childNodes[štVrsticPredPomikom]); // we remove the oldest printout
+    var node=document.createElement("tr"); // ustvarimo spremenljivko kot vrstico v tabeli "table row" (tr)
+    var textnode=document.createTextNode(števecIzpisanihVrstic + " | " + sporočilo); // ustvarimo element z besedilom in dodamo števec
+    node.appendChild(textnode); // dodamo besedilo k "node", t.j. k "table row"
+    divZaIzpis.insertBefore(node, divZaIzpis.childNodes[0]); // vstavimo v spremenljivko "node"
+    if (števecIzpisanihVrstic > štVrsticPredPomikom-1) { // če je vrstic več, kot je določeno -> pričnemo s pomikom ("scroll")
+        divZaIzpis.removeChild(divZaIzpis.childNodes[štVrsticPredPomikom]); // odstranimo najstarejši izpis
     }
-    števecIzpisanihVrstic++; // increasing the number of printouts
+    števecIzpisanihVrstic++; // povečamo števec izpisov
 }
 </script>
 
